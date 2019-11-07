@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 )
@@ -34,6 +35,8 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var inp Update
 	decoder.Decode(&inp)
+
+	log.Printf("Received %v\n", inp)
 
 	response := Response{
 		ChatID: inp.Msg.Chatt.ID,
