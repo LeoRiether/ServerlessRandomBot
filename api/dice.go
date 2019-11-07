@@ -20,10 +20,10 @@ type Update struct {
 	Msg Message `json:"message"`
 }
 
-type Response struct {
-	ChatID int    `json:"chat_id"`
-	Text   string `json:"text"`
-}
+// type Response struct {
+// 	ChatID int    `json:"chat_id"`
+// 	Text   string `json:"text"`
+// }
 
 // Dice responds to /api/dice with a random number between [0,4)
 func Dice(w http.ResponseWriter, r *http.Request) {
@@ -38,11 +38,9 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Received %v\n", inp)
 
-	response := Response{
-		ChatID: inp.Msg.Chatt.ID,
-		Text:   fmt.Sprintf("Rolled a %d", rand.Intn(4)),
-	}
+	w.Write([]byte("K"))
 
-	out, _ := json.Marshal(response)
-	w.Write(out)
+	// Please don't hack me
+	response, _ := http.Get(fmt.Sprintf("https://api.telegram.org/bot806058245:AAFUjPUE0v8A8Ye5uNieNkkpyl87dRhH9ps/sendMessage?chat_id=%d&text=Rolled a %d", inp.Msg.Chatt.ID, rand.Intn(4)))
+	log.Printf("Response: %v", response.StatusCode)
 }
