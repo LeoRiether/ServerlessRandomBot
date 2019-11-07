@@ -2,9 +2,22 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
 )
+
+type Chat struct {
+	ID int `json:"id"`
+}
+
+type Message struct {
+	Chatt Chat `json:"chat"`
+}
+
+type Update struct {
+	Msg Message `json:"message"`
+}
 
 type Response struct {
 	ChatID int    `json:"chat_id"`
@@ -19,12 +32,12 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	inp := make(map[string]interface{})
+	var inp Update
 	decoder.Decode(&inp)
 
 	response := Response{
-		ChatID: int(inp["message"]["chat"]["id"]),
-		Text: fmt.Sprintf("Rolled a %d", rand.Intn(4)),
+		ChatID: inp.Msg.Chatt.ID,
+		Text:   fmt.Sprintf("Rolled a %d", rand.Intn(4)),
 	}
 
 	out, _ := json.Marshal(response)
