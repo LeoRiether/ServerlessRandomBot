@@ -3,9 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -13,6 +13,7 @@ import (
 
 func sendMessage(chatID int64, text string) {
 	token := os.Getenv("TOKEN")
+	text = url.QueryEscape(text)
 	http.Get(fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage?chat_id=%d&text=%s", token, chatID, text))
 }
 
@@ -33,7 +34,7 @@ type Message struct {
 	Text string `json:"text"`
 	From User   `json:"from"`
 	Chat struct {
-		ID int64 `json:"id"`
+		ID   int64  `json:"id"`
 		Type string `json:"type"`
 	}
 }
@@ -53,7 +54,7 @@ type Update struct {
 
 func handleCommand(chatID int64, args []string) {
 	cmd := strings.TrimSuffix(strings.ToLower(args[0]), "@serverlessrandombot")
-	
+
 	switch cmd {
 	case "/coin":
 		if rand.Intn(2) == 1 {
@@ -77,8 +78,7 @@ func handleCommand(chatID int64, args []string) {
 		}
 
 		sendMessage(chatID, fmt.Sprintf(
-			"Number from 1 to %d:\nRolled a %d",
-			num,
+			"Rolled a %d",
 			rand.Intn(num)+1,
 		))
 	case "/list":
@@ -87,7 +87,8 @@ func handleCommand(chatID int64, args []string) {
 			break
 		}
 
-		var responses = [...]string{"%s, clearly",
+		var responses = [...]string{
+			"%s, clearly",
 			"I choose %s",
 			"Has to be %s",
 			"%s, isn't it?",
@@ -118,10 +119,6 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	decoder.Decode(&upd)
 
 	w.Write([]byte("K"))
-
-	if upd.Message != nil {
-		log.Printf("Got %#v\n", *upd.Message)
-	}
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
 		handleCommand(upd.Message.Chat.ID, strings.Split(upd.Message.Text, " "))
