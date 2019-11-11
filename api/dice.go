@@ -32,6 +32,10 @@ type Message struct {
 	ID   int64  `json:"message_id"`
 	Text string `json:"text"`
 	From User   `json:"from"`
+	Chat struct {
+		ID int64 `json:"id"`,
+		Type string `json:"type"`
+	}
 }
 
 // InlineQuery https://core.telegram.org/bots/api#inlinequery
@@ -45,10 +49,6 @@ type Update struct {
 	ID      int64        `json:"update_id"`
 	Message *Message     `json:"message"`
 	Inline  *InlineQuery `json:"inline_query"`
-	Chat    struct {
-		ID   int64  `json:"chat_id"`
-		Type string `json:"type"`
-	} `json:"chat"`
 }
 
 func handleCommand(chatID int64, args []string) {
@@ -122,6 +122,6 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
-		handleCommand(upd.Chat.ID, strings.Split(upd.Message.Text, " "))
+		handleCommand(upd.Message.Chat.ID, strings.Split(upd.Message.Text, " "))
 	}
 }
