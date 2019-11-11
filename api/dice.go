@@ -52,15 +52,15 @@ type Update struct {
 	Inline  *InlineQuery `json:"inline_query"`
 }
 
-func handleCommand(chatID int64, args []string) {
+func handleCommand(args []string) (string, error) {
 	cmd := strings.TrimSuffix(strings.ToLower(args[0]), "@serverlessrandombot")
 
 	switch cmd {
 	case "/coin":
 		if rand.Intn(2) == 1 {
-			sendMessage(chatID, "Heads")
+			return "Heads", nil
 		} else {
-			sendMessage(chatID, "Tails")
+			return "Tails", nil
 		}
 	case "/dice":
 		num := 6
@@ -70,22 +70,20 @@ func handleCommand(chatID int64, args []string) {
 		}
 
 		if err != nil {
-			sendMessage(chatID, fmt.Sprintf(
+			return fmt.Sprintf(
 				"Couln't parse number: %s",
 				args[1],
-			))
-			break
+			), nil
 		}
 
-		sendMessage(chatID, fmt.Sprintf(
+		return fmt.Sprintf(
 			"Rolled a %d",
 			rand.Intn(num)+1,
-		))
+		), nil
 	case "/list":
 		if len(args) == 1 {
 			// sendMessage(chatID, fmt.Sprintf("Please input a space-separated list after the command, like so: /list rock paper scissors"))
-			sendMessage(chatID, "Segmentation fault")
-			break
+			return "Segmentation fault", nil
 		}
 
 		var responses = [...]string{
@@ -99,12 +97,12 @@ func handleCommand(chatID int64, args []string) {
 			"I declare %s to be victorious",
 		}
 
-		sendMessage(chatID, fmt.Sprintf(
+		return fmt.Sprintf(
 			responses[rand.Intn(len(responses))],
 			args[rand.Intn(len(args)-1)+1],
-		))
+		), nil
 	default:
-		// do nothing
+		return string(""), fmt.Errorf("Command not found")
 	}
 }
 
@@ -122,6 +120,9 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("K"))
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
-		handleCommand(upd.Message.Chat.ID, strings.Split(upd.Message.Text, " "))
+		res, err := handleCommand(strings.Split(upd.Message.Text, " "))
+		if err != nil {
+			sendMessage(upd.Message.Chat.ID, res)
+		}
 	}
 }
