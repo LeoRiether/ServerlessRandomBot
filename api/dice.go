@@ -116,6 +116,10 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("K"))
 
+	if upd.Message != nil {
+		log.Printf("Got %#v\n", *upd.Message)
+	}
+
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
 		handleCommand(upd.Chat.ID, strings.Split(upd.Message.Text, " "))
 	}
