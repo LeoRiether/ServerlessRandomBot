@@ -83,7 +83,8 @@ func handleCommand(chatID int64, args []string) {
 		))
 	case "/list":
 		if len(args) == 1 {
-			sendMessage(chatID, fmt.Sprintf("Please input a space-separated list after the command, like so: /list rock paper scissors"))
+			// sendMessage(chatID, fmt.Sprintf("Please input a space-separated list after the command, like so: /list rock paper scissors"))
+			sendMessage(chatID, "Segmentation fault")
 			break
 		}
 
