@@ -33,7 +33,7 @@ type Message struct {
 	Text string `json:"text"`
 	From User   `json:"from"`
 	Chat struct {
-		ID int64 `json:"id"`,
+		ID int64 `json:"id"`
 		Type string `json:"type"`
 	}
 }
