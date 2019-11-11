@@ -52,7 +52,8 @@ type Update struct {
 	Inline  *InlineQuery `json:"inline_query"`
 }
 
-func handleCommand(args []string) (string, error) {
+func handleCommand(text string) (string, error) {
+	args := strings.Split(text, " ")
 	cmd := strings.TrimSuffix(strings.ToLower(args[0]), "@serverlessrandombot")
 
 	switch cmd {
@@ -120,8 +121,8 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("K"))
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
-		res, err := handleCommand(strings.Split(upd.Message.Text, " "))
-		if err != nil {
+		res, err := handleCommand(upd.Message.Text)
+		if err == nil {
 			sendMessage(upd.Message.Chat.ID, res)
 		}
 	}
