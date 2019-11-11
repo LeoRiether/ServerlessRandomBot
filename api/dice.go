@@ -52,7 +52,9 @@ type Update struct {
 }
 
 func handleCommand(chatID int64, args []string) {
-	switch args[0] {
+	cmd := strings.TrimSuffix(strings.ToLower(args[0]), "@serverlessrandombot")
+	
+	switch cmd {
 	case "/coin":
 		if rand.Intn(2) == 1 {
 			sendMessage(chatID, "Heads")
