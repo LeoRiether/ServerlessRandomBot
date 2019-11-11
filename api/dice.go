@@ -12,7 +12,7 @@ import (
 )
 
 func sendMessage(chatID int64, text string) {
-	token := os.Getenv("token")
+	token := os.Getenv("TOKEN")
 	http.Get(fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage?chat_id=%d&text=%s", token, chatID, text))
 }
 
