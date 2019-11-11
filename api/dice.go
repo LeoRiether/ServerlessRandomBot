@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func sendMessage(chatID int64, text string) {
@@ -72,7 +73,7 @@ func handleCommand(text string) (string, error) {
 
 		if err != nil {
 			return fmt.Sprintf(
-				"Couln't parse number: %s",
+				"Couldn't parse number: %s",
 				args[1],
 			), nil
 		}
@@ -107,7 +108,7 @@ func handleCommand(text string) (string, error) {
 	}
 }
 
-// Dice responds to /api/dice with a random number between [0,4)
+// Dice responds to /api/dice
 func Dice(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		return
@@ -119,6 +120,8 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	decoder.Decode(&upd)
 
 	w.Write([]byte("K"))
+
+	rand.Seed(time.Now().UnixNano())
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
 		res, err := handleCommand(upd.Message.Text)
