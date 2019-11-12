@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+const (
+	botMention = "@serverlessrandombot"
+)
+
 func sendMessage(chatID int64, text string) {
 	token := os.Getenv("TOKEN")
 	text = url.QueryEscape(text)
@@ -37,7 +41,7 @@ type Message struct {
 	Chat struct {
 		ID   int64  `json:"id"`
 		Type string `json:"type"`
-	}
+	} `json:"chat"`
 }
 
 // InlineQuery https://core.telegram.org/bots/api#inlinequery
@@ -53,22 +57,25 @@ type Update struct {
 	Inline  *InlineQuery `json:"inline_query"`
 }
 
-func handleCommand(text string) (string, error) {
+func processCommand(text string, rng *rand.Rand) (string, error) {
 	args := strings.Split(text, " ")
-	cmd := strings.TrimSuffix(strings.ToLower(args[0]), "@serverlessrandombot")
+	cmd := strings.TrimSuffix(strings.ToLower(args[0]), botMention)
 
 	switch cmd {
 	case "/coin":
-		if rand.Intn(2) == 1 {
+		if rng.Intn(2) == 1 {
 			return "Heads", nil
-		} else {
-			return "Tails", nil
 		}
+		return "Tails", nil
 	case "/dice":
 		num := 6
 		var err error
 		if len(args) >= 2 {
 			num, err = strconv.Atoi(args[1])
+		}
+
+		if num <= 0 {
+			return string(""), fmt.Errorf("dice should be > 0")
 		}
 
 		if err != nil {
@@ -80,7 +87,7 @@ func handleCommand(text string) (string, error) {
 
 		return fmt.Sprintf(
 			"Rolled a %d",
-			rand.Intn(num)+1,
+			rng.Intn(num)+1,
 		), nil
 	case "/list":
 		if len(args) == 1 {
@@ -100,8 +107,8 @@ func handleCommand(text string) (string, error) {
 		}
 
 		return fmt.Sprintf(
-			responses[rand.Intn(len(responses))],
-			args[rand.Intn(len(args)-1)+1],
+			responses[rng.Intn(len(responses))],
+			args[rng.Intn(len(args)-1)+1],
 		), nil
 	default:
 		return string(""), fmt.Errorf("Command not found")
@@ -121,10 +128,10 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("K"))
 
-	rand.Seed(time.Now().UnixNano())
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
-		res, err := handleCommand(upd.Message.Text)
+		res, err := processCommand(upd.Message.Text, rng)
 		if err == nil {
 			sendMessage(upd.Message.Chat.ID, res)
 		}
