@@ -57,7 +57,8 @@ type Update struct {
 	Inline  *InlineQuery `json:"inline_query"`
 }
 
-func processCommand(text string, rng *rand.Rand) (string, error) {
+// ProcessCommand takes in an input text (like "/dice 12") and returns what the bot should respond with
+func ProcessCommand(text string, rng *rand.Rand) (string, error) {
 	args := strings.Split(text, " ")
 	cmd := strings.TrimSuffix(strings.ToLower(args[0]), botMention)
 
@@ -131,7 +132,7 @@ func Dice(w http.ResponseWriter, r *http.Request) {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	if upd.Message != nil && upd.Message.Text != "" && upd.Message.Text[0] == '/' {
-		res, err := processCommand(upd.Message.Text, rng)
+		res, err := ProcessCommand(upd.Message.Text, rng)
 		if err == nil {
 			sendMessage(upd.Message.Chat.ID, res)
 		}

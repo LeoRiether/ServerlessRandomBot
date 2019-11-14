@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
+
+	"../api"
 )
 
 // TestCommands tests the handleCommand() function
@@ -38,7 +40,7 @@ func TestCommands(t *testing.T) {
 	rng = rand.New(rand.NewSource(1234))
 
 	for _, test := range tests {
-		out, err := processCommand(test.in, rng)
+		out, err := api.ProcessCommand(test.in, rng)
 		if (err != nil) != test.hasError {
 			if err == nil {
 				t.Errorf("In <%s>, expected err!=nil, found err=%v\n", test.in, err)
